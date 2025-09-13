@@ -109,7 +109,15 @@ async def update_user_answer(session: AsyncSession, answer_id: int, data: UserAn
     return answer
 
 
+# async def delete_user_answer(session: AsyncSession, answer_id: int) -> None:
+#     answer = await get_user_answer(session, answer_id)
+#     await session.delete(answer)
+#     await session.commit()
+
 async def delete_user_answer(session: AsyncSession, answer_id: int) -> None:
-    answer = await get_user_answer(session, answer_id)
-    await session.delete(answer)
-    await session.commit()
+    result = await session.execute(select(UserAnswer).where(UserAnswer.id == answer_id))
+    answer = result.scalar_one_or_none()  # Получаем объект UserAnswer
+    
+    if answer:
+        await session.delete(answer)  # Удаляем объект, а не результат запроса
+        await session.commit()

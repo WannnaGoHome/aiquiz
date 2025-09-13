@@ -41,7 +41,15 @@ async def update_user(session: AsyncSession, telegram_id: int, data: UserUpdate)
     return user
 
 
+# async def delete_user(session: AsyncSession, telegram_id: int) -> None:
+#     user = await session.execute(select(User).where(User.telegram_id == telegram_id))
+#     await session.delete(user)
+#     await session.commit()
+
 async def delete_user(session: AsyncSession, telegram_id: int) -> None:
-    user = await session.execute(select(User).where(User.telegram_id == telegram_id))
-    await session.delete(user)
-    await session.commit()
+    result = await session.execute(select(User).where(User.telegram_id == telegram_id))
+    user = result.scalar_one_or_none()  # Получаем объект User
+    
+    if user:
+        await session.delete(user)  # Удаляем объект, а не результат запроса
+        await session.commit()
